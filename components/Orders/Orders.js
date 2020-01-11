@@ -53,7 +53,6 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         alignItems: 'center'
     },
-    scrollBlock: {},
     bottomButtonsBlock: {
         height: 80,
         backgroundColor: "black",
@@ -67,53 +66,40 @@ class Orders extends Component {
     constructor(props) {
         super(props);
 
-        this.handleSave = this.handleSave.bind(this);
+        this.handleCreate = this.handleCreate.bind(this);
     }
 
-    handleSave(confirmCallback) {
-        if (this.props.cart.products.length > 0) {
-            api.saveCart({order: this.props.cart})
-                .then((response) => {
-                    if (response.status === 200) {
+    handleCreate() {
+        // Change user on back
+        api.changeUser({
+            checked_order_id: null
+        }, {
+            'access-token': this.props.user.accessToken,
+            'uid': this.props.user.uid,
+            'client': this.props.user.client,
+        })
+            .then((response) => {
+                if (response.status === 200) {
 
-                        // Change user locally
-                        let user = {};
-                        Object.assign(user, this.props.user);
-                        user.checked_order_id = response.data.order_id;
-                        this.props.updateUser(user);
+                    // Clear cart
+                    this.props.updateCart({
+                        order_id: null,
+                        user_id: this.props.user.id,
+                        status: 0,
+                        products: []
+                    });
 
-                        // Change user on back
-                        api.changeUser({
-                            checked_order_id: response.data.order_id
-                        }, {
-                            'access-token': this.props.user.accessToken,
-                            'uid': this.props.user.uid,
-                            'client': this.props.user.client,
-                        })
-                            .catch((error) => {
-                                console.log(error);
-                                SimpleToast.show("Unexpected error occurred");
-                                return false;
-                            });
+                    this.props.reloadUser(this);
+                    SimpleToast.show("Order was successfully created");
+                    this.props.navigation.navigate('Main');
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                SimpleToast.show("Unexpected error occurred");
+            });
 
-                        if (!confirmCallback) {
-                            SimpleToast.show("Cart saved successfully");
-                        } else {
-                            confirmCallback();
-                        }
-                    } else {
-                        SimpleToast.show("Unexpected error occurred");
-                    }
-                })
-                .catch((error) => {
-                    console.log(error);
-                    SimpleToast.show("Unexpected error occurred");
-                });
-        } else if (!confirmCallback) {
-            SimpleToast.show("You cant save an empty cart!");
-        } else if (confirmCallback) {
-            SimpleToast.show("You cant confirm an empty order!");
-        }
+
     }
 
     render() {
@@ -128,9 +114,22 @@ class Orders extends Component {
                 <View style={{flex: 1}}>
                     <AppHeader navigation={this.props.navigation} header={"My orders"}/>
                     <View style={{flex: 1}}>
-                        <ScrollView style={styles.scrollBlock}>
+                        <ScrollView>
                             {renderedItems}
                         </ScrollView>
+                        <View style={styles.bottomButtonsBlock}>
+                            <View style={{
+                                flexDirection: "row",
+                                justifyContent: "center"
+                            }}>
+                                <TouchableOpacity style={[Styles.button, {
+                                    marginLeft: 10,
+                                    width: 200
+                                }]} onPress={this.handleCreate}>
+                                    <Text style={[Styles.buttonText, {fontSize: 20}]}>Create new order</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
                     </View>
                 </View>
             )

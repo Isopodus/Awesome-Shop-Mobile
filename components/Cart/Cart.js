@@ -28,6 +28,12 @@ const styles = StyleSheet.create({
         textAlign: "center",
         marginTop: 5
     },
+    headerText: {
+        color: "white",
+        fontSize: 22,
+        textAlign: "center",
+        margin: 7
+    },
     blackText: {
         color: "black",
         textAlign: "center",
@@ -54,9 +60,8 @@ const styles = StyleSheet.create({
         alignSelf: 'center',
         alignItems: 'center'
     },
-    scrollBlock: {},
     bottomButtonsBlock: {
-        height: 80,
+        height: 100,
         backgroundColor: "black",
         flexDirection: "column",
         justifyContent: "center"
@@ -87,7 +92,7 @@ class Cart extends Component {
                             'client': this.props.user.client,
                         })
                             .then((response) => {
-                                if(response.status === 200) {
+                                if (response.status === 200) {
                                     if (!confirmCallback) {
                                         SimpleToast.show("Cart saved successfully");
                                         this.props.reloadUser(this);
@@ -163,14 +168,20 @@ class Cart extends Component {
             if (renderedItems.length === 0) {
                 renderedItems = <Text style={styles.blackText}>Your cart is empty</Text>
             }
+            let total = 0;
+            this.props.cart.products.forEach((item) => {
+                total += item.quantity * item.product.price;
+            });
             return (
                 <View style={{flex: 1}}>
-                    <AppHeader navigation={this.props.navigation} header={"My cart"}/>
+                    <AppHeader navigation={this.props.navigation} header={this.props.user.checked_order_id ?
+                        "Order #" + this.props.user.checked_order_id : "My cart"}/>
                     <View style={{flex: 1}}>
-                        <ScrollView style={styles.scrollBlock}>
+                        <ScrollView>
                             {renderedItems}
                         </ScrollView>
                         <View style={styles.bottomButtonsBlock}>
+                            <Text style={styles.headerText}>Total: {total}$</Text>
                             <View style={{
                                 flexDirection: "row",
                                 justifyContent: "center"
