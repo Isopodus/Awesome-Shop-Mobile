@@ -52,7 +52,8 @@ class Product extends Component {
                 price: this.props.productData.price
             }
         };
-        let newCart = this.props.cart;
+        let newCart = {};
+        Object.assign(newCart, this.props.cart);
         let oldItem = newCart.products.find(currItem => currItem.product.id === newItem.product.id);
         if (oldItem) {
             newCart.products[newCart.products.findIndex(obj => obj === oldItem)].quantity += newItem.quantity;

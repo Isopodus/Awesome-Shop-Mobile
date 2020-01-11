@@ -13,7 +13,7 @@ import api from "../../api";
 import {connect} from 'react-redux';
 import {mapDispatchToProps, mapStateToProps} from "../../dispatchers/AppDispatchers";
 import SimpleToast from "react-native-simple-toast";
-import CartItem from "./CartItem";
+import OrderItem from "./OrderItem";
 
 const styles = StyleSheet.create({
     text: {
@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
     }
 });
 
-class Cart extends Component {
+class Orders extends Component {
 
     constructor(props) {
         super(props);
@@ -153,36 +153,19 @@ class Cart extends Component {
 
     render() {
         if (this.props.user) {
-            let renderedItems = this.props.cart.products.map((item) => {
-                return <CartItem item={item} key={item.product.id}/>
+            let renderedItems = this.props.user.orders.map((order) => {
+                return <OrderItem order={order} key={order.order_id}/>
             });
             if (renderedItems.length === 0) {
-                renderedItems = <Text style={styles.blackText}>Your cart is empty</Text>
+                renderedItems = <Text style={styles.blackText}>You have no orders</Text>
             }
             return (
                 <View style={{flex: 1}}>
-                    <AppHeader navigation={this.props.navigation} header={"My cart"}/>
+                    <AppHeader navigation={this.props.navigation} header={"My orders"}/>
                     <View style={{flex: 1}}>
                         <ScrollView style={styles.scrollBlock}>
                             {renderedItems}
                         </ScrollView>
-                        <View style={styles.bottomButtonsBlock}>
-                            <View style={{
-                                flexDirection: "row",
-                                justifyContent: "center"
-                            }}>
-                                <TouchableOpacity style={[Styles.button, {
-                                    marginRight: 10
-                                }]} onPress={() => this.handleSave(null)}>
-                                    <Text style={[Styles.buttonText, {fontSize: 20}]}>Save</Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity style={[Styles.button, {
-                                    marginLeft: 10
-                                }]} onPress={() => this.handleSave(this.handleConfirm)}>
-                                    <Text style={[Styles.buttonText, {fontSize: 20}]}>Confirm</Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
                     </View>
                 </View>
             )
@@ -191,7 +174,7 @@ class Cart extends Component {
                 <View>
                     <AppHeader navigation={this.props.navigation}/>
                     <View style={styles.wrapper}>
-                        <Text style={styles.wrapperHeaderText}>You need to be logged in to view your cart</Text>
+                        <Text style={styles.wrapperHeaderText}>You need to be logged in to view your orders</Text>
                         <TouchableOpacity style={[Styles.button, {
                             marginTop: 15
                         }]} onPress={() => this.props.navigation.navigate('Account')}>
@@ -204,4 +187,4 @@ class Cart extends Component {
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Cart);
+export default connect(mapStateToProps, mapDispatchToProps)(Orders);

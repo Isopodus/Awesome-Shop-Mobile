@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {
+    ActivityIndicator,
     Button, ScrollView,
     StyleSheet,
     Text,
@@ -14,6 +15,17 @@ import {mapStateToProps, mapDispatchToProps} from '../../dispatchers/AppDispatch
 const styles = StyleSheet.create({
     main: {
         flex: 1
+    },
+    spinnerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    spinner: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: 50
     }
 });
 
@@ -23,7 +35,8 @@ class Main extends Component {
         super(props);
         this._isMounted = false;
         this.state = {
-            products: []
+            products: [],
+            loaded: false
         }
     }
 
@@ -33,7 +46,8 @@ class Main extends Component {
             .then(response => {
                 if (response.status === 200 && this._isMounted) {
                     this.setState({
-                        products: response.data
+                        products: response.data,
+                        loaded: true
                     });
                 }
             })
@@ -51,18 +65,29 @@ class Main extends Component {
             return <Product productData={product} key={product.id}/>
         });
 
-        return (
-            <View style={{flex: 1}}>
-                <AppHeader navigation={this.props.navigation}/>
-                <View style={styles.main}>
-                    <ScrollView style={{flex: 1}}>
-                        {renderedProducts}
-                    </ScrollView>
+        if (this.state.loaded) {
+            return (
+                <View style={{flex: 1}}>
+                    <AppHeader navigation={this.props.navigation}/>
+                    <View style={styles.main}>
+                        <ScrollView style={{flex: 1}}>
+                            {renderedProducts}
+                        </ScrollView>
+                    </View>
                 </View>
-            </View>
-        )
+            );
+        } else {
+            return (
+                <View style={{flex: 1}}>
+                    <AppHeader navigation={this.props.navigation}/>
+                    <View style={styles.spinnerContainer}>
+                        <ActivityIndicator color="black" size="large" style={styles.spinner}/>
+                    </View>
+                </View>
+            );
+        }
+
     }
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

@@ -6,7 +6,7 @@ import {
     View,
     TouchableOpacity
 } from 'react-native';
-//import SimpleToast from "react-native-simple-toast";
+import SimpleToast from "react-native-simple-toast";
 import Styles from "../Styles/Styles";
 import api from '../../api'
 import * as SecureStore from 'expo-secure-store';
@@ -111,7 +111,7 @@ class Login extends Component {
                                     this.props.updateCart(order);
                                 }
 
-                                //SimpleToast.show("Signed in successfully", SimpleToast.LONG);
+                                SimpleToast.show("Signed in successfully", SimpleToast.LONG);
                                 this.props.navigation.navigate('Main');
                             }
                         });

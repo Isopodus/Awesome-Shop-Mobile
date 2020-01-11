@@ -64,7 +64,7 @@ class AppHeader extends Component {
                             type='Feather'
                             color='white'/>
                     </View>
-                    <Text style={styles.text}>Awesome shop</Text>
+                    <Text style={styles.text}>{this.props.header ? this.props.header : "Awesome shop"}</Text>
                     <View style={styles.iconWrapper}>
                         <Icon
                             onPress={this.handleCart}

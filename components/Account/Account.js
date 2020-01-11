@@ -5,7 +5,7 @@ import {
     TouchableOpacity,
     View
 } from 'react-native';
-//import SimpleToast from "react-native-simple-toast";
+import SimpleToast from "react-native-simple-toast";
 import * as SecureStore from 'expo-secure-store';
 import AppHeader from "../AppHeader/AppHeader";
 import Login from "../Login/Login";
@@ -81,7 +81,7 @@ class Account extends Component {
             })
                 .then(response => {
                     if (response.status === 200) {
-                        //SimpleToast.show("Signed out successfully", SimpleToast.LONG);
+                        SimpleToast.show("Signed out successfully", SimpleToast.LONG);
                     }
                 })
                 .catch(error => {

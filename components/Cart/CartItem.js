@@ -45,6 +45,7 @@ class CartItem extends Component {
 
     constructor(props) {
         super(props);
+
         this.state = {
             modalVisible: false
         };
@@ -60,14 +61,15 @@ class CartItem extends Component {
     }
 
     removeItem() {
-        let tempCart = this.props.cart;
+        let tempCart = {};
+        Object.assign(tempCart, this.props.cart);
         tempCart.products = tempCart.products.filter(item => item.product.id !== this.props.item.product.id);
         this.props.updateCart(tempCart);
-        this.setState({modalVisible: false});
     }
 
     handleQuantityChange(value) {
-        let tempCart = this.props.cart;
+        let tempCart = {};
+        Object.assign(tempCart, this.props.cart);
         let itemIndex = tempCart.products.findIndex(item => item.product.id === this.props.item.product.id);
         let quantity = Number(value);
         if (quantity < 1) {
@@ -77,7 +79,6 @@ class CartItem extends Component {
             tempCart.products[itemIndex].quantity = quantity;
         }
         this.props.updateCart(tempCart);
-        this.forceUpdate()
     }
 
     render() {
@@ -113,7 +114,14 @@ class CartItem extends Component {
                             />
                             <ModalButton
                                 text="Yes"
-                                onPress={this.removeItem}
+                                onPress={() => {
+                                    this.setState({modalVisible: false}, () => {
+                                        function sleep (time) {
+                                            return new Promise((resolve) => setTimeout(resolve, time));
+                                        }
+                                        sleep(100).then(this.removeItem);
+                                    });
+                                }}
                                 textStyle={styles.modalButtonText}
                             />
                         </ModalFooter>

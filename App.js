@@ -7,6 +7,7 @@ import * as SecureStore from 'expo-secure-store';
 import Account from "./components/Account/Account";
 import api from "./api";
 import Cart from "./components/Cart/Cart";
+import Orders from "./components/Orders/Orders";
 import {Provider, connect} from 'react-redux';
 import {createStore} from 'redux';
 import AppReducer from './reducers/AppReducer';
@@ -18,6 +19,9 @@ const DrawerStack = createDrawerNavigator({
         },
         Cart: {
             screen: (props) => <Cart {...props}/>
+        },
+        Orders: {
+            screen: (props) => <Orders {...props}/>
         },
         Account: {
             screen: (props) => <Account {...props}/>
@@ -71,6 +75,10 @@ class App extends React.Component {
                                         if (order) {
                                             this.props.updateCart(order);
                                         }
+                                        order = {};
+                                        Object.assign(order, this.props.cart);
+                                        order.user_id = this.props.user.id;
+                                        this.props.updateCart(order);
                                     }
                                 });
                         }
