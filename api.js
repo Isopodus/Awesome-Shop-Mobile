@@ -12,5 +12,6 @@ export default {
     getProducts: () => axios.get('http://' + domain + '/api/products'),
     changeUser: (data, headers) => axios.put('http://' + domain + '/api/auth', data, {headers: headers}),
     saveCart: (data) => axios.post('http://' + domain + '/api/orders/', data),
-    confirmOrder: (order_id) => axios.get('http://' + domain + '/api/orders/confirm_order/' + order_id)
+    confirmOrder: (order_id) => axios.get('http://' + domain + '/api/orders/confirm_order/' + order_id),
+    deleteOrder: (order_id) => axios.delete('http://' + domain + '/api/orders/' + order_id)
 }

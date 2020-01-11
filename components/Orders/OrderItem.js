@@ -8,8 +8,10 @@ import {connect} from 'react-redux';
 import {mapDispatchToProps, mapStateToProps} from "../../dispatchers/AppDispatchers";
 import Moment from 'moment';
 import Modal, {ModalButton, ModalFooter, ModalTitle} from 'react-native-modals';
+import api from "../../api";
 import Styles from "../Styles/Styles";
 import {ModalContent} from "react-native-modals/src";
+import SimpleToast from "react-native-simple-toast";
 
 const styles = StyleSheet.create({
     text: {
@@ -40,8 +42,6 @@ const styles = StyleSheet.create({
         margin: 7,
         alignSelf: 'center',
         alignItems: 'flex-start',
-        // flexDirection: "row",
-        //justifyContent: "space-around"
     },
     modalButtonText: {
         color: "black"
@@ -59,7 +59,6 @@ class OrderItem extends Component {
         this.handleModal = this.handleModal.bind(this);
         this.deleteOrder = this.deleteOrder.bind(this);
         this.setActive = this.setActive.bind(this);
-        this.confirmOrder = this.confirmOrder.bind(this);
     }
 
     handleModal() {
@@ -69,28 +68,47 @@ class OrderItem extends Component {
     }
 
     deleteOrder() {
-        let tempCart = {};
-        Object.assign(tempCart, this.props.cart);
-        tempCart.products = tempCart.products.filter(item => item.product.id !== this.props.item.product.id);
-        this.props.updateCart(tempCart);
+        api.deleteOrder(this.props.order.order_id)
+            .then((response) => {
+                if (response.status === 204) {
+                    SimpleToast.show("Order deleted successfully");
+                    this.props.reloadUser(this);
+                } else {
+                    SimpleToast.show("Unexpected error occurred");
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                SimpleToast.show("Unexpected error occurred");
+            })
     }
 
     setActive() {
-        // let tempCart = {};
-        // Object.assign(tempCart, this.props.cart);
-        // let itemIndex = tempCart.products.findIndex(item => item.product.id === this.props.item.product.id);
-        // let quantity = Number(value);
-        // if (quantity < 1) {
-        //     quantity = 1;
-        // }
-        // if (itemIndex >= 0) {
-        //     tempCart.products[itemIndex].quantity = quantity;
-        // }
-        // this.props.updateCart(tempCart);
-    }
-
-    confirmOrder() {
-
+        this.setState({modalVisible: false}, () => {
+            function sleep(time) {
+                return new Promise((resolve) => setTimeout(resolve, time));
+            }
+            sleep(100).then(() => {
+                api.changeUser({
+                    checked_order_id: this.props.order.order_id
+                }, {
+                    'access-token': this.props.user.accessToken,
+                    'uid': this.props.user.uid,
+                    'client': this.props.user.client,
+                })
+                    .then((response) => {
+                        if (response.status === 200) {
+                            SimpleToast.show("Active order changed to #" + this.props.order.order_id);
+                            this.props.reloadUser(this);
+                        }
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        SimpleToast.show("Unexpected error occurred");
+                        return false;
+                    });
+            });
+        });
     }
 
     render() {
@@ -110,14 +128,14 @@ class OrderItem extends Component {
 
         let modalButtons = [];
         if (this.props.order.status === 0) {
-            modalButtons.push(<ModalButton
-                text="Set active"
-                onPress={() => {
-                    this.setState({modalVisible: false});
-                }}
-                textStyle={styles.modalButtonText}
-                key={1}
-            />);
+            if (this.props.user.checked_order_id !== this.props.order.order_id) {
+                modalButtons.push(<ModalButton
+                    text="Set active"
+                    onPress={this.setActive}
+                    textStyle={styles.modalButtonText}
+                    key={1}
+                />);
+            }
             modalButtons.push(<ModalButton
                 text="Delete"
                 onPress={() => {
@@ -126,7 +144,7 @@ class OrderItem extends Component {
                             return new Promise((resolve) => setTimeout(resolve, time));
                         }
 
-                        sleep(100).then(this.removeItem);
+                        sleep(100).then(this.deleteOrder);
                     });
                 }}
                 textStyle={styles.modalButtonText}

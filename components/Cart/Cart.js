@@ -14,6 +14,7 @@ import {connect} from 'react-redux';
 import {mapDispatchToProps, mapStateToProps} from "../../dispatchers/AppDispatchers";
 import SimpleToast from "react-native-simple-toast";
 import CartItem from "./CartItem";
+import * as SecureStore from "expo-secure-store";
 
 const styles = StyleSheet.create({
     text: {
@@ -77,12 +78,6 @@ class Cart extends Component {
                 .then((response) => {
                     if (response.status === 200) {
 
-                        // Change user locally
-                        let user = {};
-                        Object.assign(user, this.props.user);
-                        user.checked_order_id = response.data.order_id;
-                        this.props.updateUser(user);
-
                         // Change user on back
                         api.changeUser({
                             checked_order_id: response.data.order_id
@@ -91,17 +86,20 @@ class Cart extends Component {
                             'uid': this.props.user.uid,
                             'client': this.props.user.client,
                         })
+                            .then((response) => {
+                                if(response.status === 200) {
+                                    if (!confirmCallback) {
+                                        SimpleToast.show("Cart saved successfully");
+                                        this.props.reloadUser(this);
+                                    } else {
+                                        confirmCallback();
+                                    }
+                                }
+                            })
                             .catch((error) => {
                                 console.log(error);
                                 SimpleToast.show("Unexpected error occurred");
-                                return false;
                             });
-
-                        if (!confirmCallback) {
-                            SimpleToast.show("Cart saved successfully");
-                        } else {
-                            confirmCallback();
-                        }
                     } else {
                         SimpleToast.show("Unexpected error occurred");
                     }
@@ -110,6 +108,7 @@ class Cart extends Component {
                     console.log(error);
                     SimpleToast.show("Unexpected error occurred");
                 });
+
         } else if (!confirmCallback) {
             SimpleToast.show("You cant save an empty cart!");
         } else if (confirmCallback) {
@@ -135,12 +134,17 @@ class Cart extends Component {
                         'uid': this.props.user.uid,
                         'client': this.props.user.client,
                     })
+                        .then((response) => {
+                            if (response.status === 200) {
+                                SimpleToast.show("Order confirmed successfully");
+                                this.props.reloadUser(this);
+                            }
+                        })
                         .catch((error) => {
                             console.log(error);
                             SimpleToast.show("Unexpected error occurred");
                             return false;
                         });
-                    SimpleToast.show("Order confirmed successfully");
                 } else {
                     SimpleToast.show("Unexpected error occurred");
                 }

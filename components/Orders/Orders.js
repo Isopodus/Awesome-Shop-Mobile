@@ -68,7 +68,6 @@ class Orders extends Component {
         super(props);
 
         this.handleSave = this.handleSave.bind(this);
-        this.handleConfirm = this.handleConfirm.bind(this);
     }
 
     handleSave(confirmCallback) {
@@ -115,40 +114,6 @@ class Orders extends Component {
         } else if (confirmCallback) {
             SimpleToast.show("You cant confirm an empty order!");
         }
-    }
-
-    handleConfirm() {
-        api.confirmOrder(this.props.cart.order_id)
-            .then((response) => {
-                if (response.status === 200) {
-                    this.props.updateCart({
-                        order_id: null,
-                        user_id: this.props.user.id,
-                        status: 0,
-                        products: []
-                    });
-
-                    api.changeUser({
-                        checked_order_id: null
-                    }, {
-                        'access-token': this.props.user.accessToken,
-                        'uid': this.props.user.uid,
-                        'client': this.props.user.client,
-                    })
-                        .catch((error) => {
-                            console.log(error);
-                            SimpleToast.show("Unexpected error occurred");
-                            return false;
-                        });
-                    SimpleToast.show("Order confirmed successfully");
-                } else {
-                    SimpleToast.show("Unexpected error occurred");
-                }
-            })
-            .catch((error) => {
-                console.log(error);
-                SimpleToast.show("Unexpected error occurred");
-            });
     }
 
     render() {
